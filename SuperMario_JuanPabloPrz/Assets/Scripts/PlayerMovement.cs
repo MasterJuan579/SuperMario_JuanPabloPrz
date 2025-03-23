@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     float moveSpeed = 5f;
     bool isFacingRight = false;
     float jumpPower = 8f;
-    bool isJumping = false;
+    bool isGrounded = false;
 
     Rigidbody2D rb;
     Animator animator;
@@ -27,9 +27,10 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = Input.GetAxis("Horizontal");
         FlipSprite();
 
-        if(Input.GetButtonDown("Jump")  && !isJumping){
+        if(Input.GetButtonDown("Jump")  && isGrounded){
             rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpPower);
-            isJumping = true;
+            isGrounded = false;
+            animator.SetBool("isJumping", !isGrounded);
         }
     }
 
@@ -37,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocityY);
         animator.SetFloat("xVelocity", Math.Abs(rb.linearVelocityX));
+        animator.SetFloat("yVelocity", rb.linearVelocityY);
     }
 
     void FlipSprite(){
@@ -47,8 +49,10 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = ls;
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        isJumping = false;
+        isGrounded = true;
+        animator.SetBool("isJumping", !isGrounded); 
     }
 }
